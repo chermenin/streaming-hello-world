@@ -51,7 +51,7 @@ abstract class SparkBaseJob(master: String, appName: String) {
     val result = process(deviceMessages)
 
     result.foreachRDD(_.saveToEs("spark-index/duration_type",
-      Map[String, String]("es.mapping,timestamp" -> "timestamp")))
+      Map[String, String]("es.mapping.timestamp" -> "timestamp")))
 
     ssc.start()
     ssc.awaitTerminationOrTimeout(180000)
