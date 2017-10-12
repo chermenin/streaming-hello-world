@@ -7,8 +7,8 @@
     <name>Spark Duration Job</name>
 
     <properties>
-        <scala.version>2.11.8</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.version>2.10.6</scala.version>
+        <scala.binary.version>2.10</scala.binary.version>
         <spark.version>2.2.0</spark.version>
         <elasticsearch.version>5.4.0</elasticsearch.version>
     </properties>

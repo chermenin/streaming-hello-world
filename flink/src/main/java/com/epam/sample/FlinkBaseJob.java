@@ -90,14 +90,10 @@ abstract public class FlinkBaseJob {
                 new ElasticsearchSink<>(
                         config, transports,
                         (ElasticsearchSinkFunction<IndexMessage>) (message, context, indexer) -> {
-                            Map<String, String> json = new HashMap<>();
-                            json.put("@timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS").format(message.getTimestamp()));
-                            json.put("value", Long.toString(message.getDuration()));
-
                             IndexRequest request = Requests.indexRequest()
                                     .index("flink-index")
                                     .type("duration_type")
-                                    .source(json);
+                                    .source("@timestamp", message.getTimestamp(), "value", message.getDuration());
 
                             indexer.add(request);
                         }
