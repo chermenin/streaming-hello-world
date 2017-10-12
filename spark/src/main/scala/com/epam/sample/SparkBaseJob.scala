@@ -1,5 +1,6 @@
 package com.epam.sample
 
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import org.elasticsearch.spark._
@@ -10,7 +11,6 @@ import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.kafka010._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.joda.time.DateTime
 
 case class DeviceMessage(timestamp: Date, device: String, ip: String)
 
@@ -43,8 +43,8 @@ abstract class SparkBaseJob(master: String, appName: String) {
     val sentRegexp = "^(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}.\\d+)\\s+\\S+\\s+\\[dev\\s\\#(.+)\\]\\sSent\\s\\d+\\sbytes\\sto\\s(.+)".r
     val receivedRegexp = "^(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}.\\d+)\\s+\\S+\\s+\\[(.+)\\]\\sReceived\\s\\d+\\sbytes\\sfrom\\s(.+)".r
     val deviceMessages = sentInputStream.union(receivedInputStream).flatMap {
-      case sentRegexp(date, device, ip) => Seq(DeviceMessage(DateTime.parse(date).toDate, device, ip))
-      case receivedRegexp(date, ip, device) => Seq(DeviceMessage(DateTime.parse(date).toDate, device, ip))
+      case sentRegexp(date, device, ip) => Seq(DeviceMessage(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(date), device, ip))
+      case receivedRegexp(date, ip, device) => Seq(DeviceMessage(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(date), device, ip))
       case _ => Seq()
     }
 
