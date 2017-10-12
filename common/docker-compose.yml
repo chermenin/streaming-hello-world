@@ -1,0 +1,36 @@
+elasticsearch:
+  hostname: elasticsearch
+  container_name: elasticsearch
+  image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+  ports:
+    - 9200:9200
+    - 9300:9300
+  volumes:
+    - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+kibana:
+  hostname: kibana
+  container_name: kibana
+  image: docker.elastic.co/kibana/kibana:5.4.0
+  ports:
+    - 5601:5601
+  links:
+    - elasticsearch
+
+kafka:
+  hostname: kafka
+  container_name: kafka
+  image: spotify/kafka
+  ports:
+    - 9092:9092
+
+filebeat:
+  hostname: filebeat
+  container_name: filebeat
+  image: docker.elastic.co/beats/filebeat:5.4.0
+  entrypoint: filebeat -e -c /filebeat/configuration/filebeat.yml
+  volumes:
+    - ./:/filebeat/configuration
+    - ../input:/filebeat/input
+  links:
+    - kafka

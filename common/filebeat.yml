@@ -1,0 +1,59 @@
+filebeat:
+  prospectors:
+    - input_type: log
+      paths:
+        - /filebeat/input/logstash/received.log
+      document_type: logstash_received_log_input
+      fields_under_root: true
+      scan_frequency: 10s
+
+    - input_type: log
+      paths:
+        - /filebeat/input/spark/received.log
+      document_type: spark_received_log_input
+      fields_under_root: true
+      scan_frequency: 10s
+
+    - input_type: log
+      paths:
+        - /filebeat/input/flink/received.log
+      document_type: flink_received_log_input
+      fields_under_root: true
+      scan_frequency: 10s
+
+    - input_type: log
+      paths:
+        - /filebeat/input/logstash/sent.log
+      document_type: logstash_sent_log_input
+      fields_under_root: true
+      scan_frequency: 10s
+
+    - input_type: log
+      paths:
+        - /filebeat/input/spark/sent.log
+      document_type: spark_sent_log_input
+      fields_under_root: true
+      scan_frequency: 10s
+
+    - input_type: log
+      paths:
+        - /filebeat/input/flink/sent.log
+      document_type: flink_sent_log_input
+      fields_under_root: true
+      scan_frequency: 10s
+
+output.kafka:
+  hosts: ["kafka:9092"]
+  topic: "%{[type]}"
+  partition.round_robin:
+    reachable_only: true
+    group_events: 100
+  version: '0.10'
+  client_id: filebeat
+  worker: 1
+  broker_timeout: 30s
+  keep_alive: 60s
+  compression: snappy
+  channel_buffer_size: 2048
+  required_acks: 1
+  flush_interval: 30s

@@ -1,0 +1,12 @@
+logstash:
+  hostname: logstash
+  container_name: logstash
+  build: ./
+  entrypoint: logstash -f /logstash/configuration/pipeline.conf
+  volumes:
+    - ./pipeline.conf:/logstash/configuration/pipeline.conf
+    - ./template.json:/logstash/templates/template.json
+    - ./logstash.yml:/usr/share/logstash/config/logstash.yml
+  external_links:
+    - kafka
+    - elasticsearch

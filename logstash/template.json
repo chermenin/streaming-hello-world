@@ -1,0 +1,32 @@
+{
+  "order": 0,
+  "template": "*-index-*",
+  "mappings": {
+    "duration_type": {
+      "_all": { "enabled": false },
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "value": { "type": "long" }
+      },
+      "dynamic_templates": [
+        {
+          "no_index": {
+            "match_pattern": "regex",
+            "path_match": "^(@version|type)$",
+            "mapping": {
+              "type": "keyword",
+              "index": false,
+              "doc_values": false
+            }
+          }
+        },
+        {
+          "text_keyword_fields": {
+            "match": "*",
+            "mapping": { "type": "keyword" }
+          }
+        }
+      ]
+    }
+  }
+}
