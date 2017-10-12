@@ -14,7 +14,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 import scala.util.parsing.json.JSON
 
-case class DeviceMessage(timestamp: Date, device: String, ip: String)
+case class DeviceMessage(timestamp: Date, device: String, ip: String, received: Boolean)
 
 case class IndexMessage(timestamp: Date, value: Long)
 
@@ -47,8 +47,8 @@ abstract class SparkBaseJob(master: String, appName: String) {
     val sentRegexp = "^(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}.\\d+)\\s+\\S+\\s+\\[dev\\s\\#(.+)\\]\\sSent\\s\\d+\\sbytes\\sto\\s(.+)".r
     val receivedRegexp = "^(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}.\\d+)\\s+\\S+\\s+\\[(.+)\\]\\sReceived\\s\\d+\\sbytes\\sfrom\\s(.+)".r
     val deviceMessages = sentInputStream.union(receivedInputStream).flatMap {
-      case sentRegexp(date, device, ip) => Seq(DeviceMessage(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(date), device, ip))
-      case receivedRegexp(date, ip, device) => Seq(DeviceMessage(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(date), device, ip))
+      case sentRegexp(date, device, ip) => Seq(DeviceMessage(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(date), device, ip, received = false))
+      case receivedRegexp(date, ip, device) => Seq(DeviceMessage(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(date), device, ip, received = true))
       case _ => Seq()
     }
 
