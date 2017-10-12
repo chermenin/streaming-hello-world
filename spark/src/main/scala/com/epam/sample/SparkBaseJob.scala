@@ -12,6 +12,8 @@ import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.kafka010._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
+import scala.util.parsing.json.JSON
+
 case class DeviceMessage(timestamp: Date, device: String, ip: String)
 
 case class IndexMessage(timestamp: Date, value: Long)
@@ -34,11 +36,13 @@ abstract class SparkBaseJob(master: String, appName: String) {
 
     val sentInputStream = KafkaUtils.createDirectStream[String, String](
       ssc, PreferConsistent, Subscribe[String, String](Seq("spark_sent_log_input"), kafkaParams)
-    ).map(_.value())
+    ).map(record => JSON.parseFull(record.value()).getOrElse(Map("message" -> ""))
+      .asInstanceOf[Map[String, String]].getOrElse("message", ""))
 
     val receivedInputStream = KafkaUtils.createDirectStream[String, String](
       ssc, PreferConsistent, Subscribe[String, String](Seq("spark_received_log_input"), kafkaParams)
-    ).map(_.value())
+    ).map(record => JSON.parseFull(record.value()).getOrElse(Map("message" -> ""))
+      .asInstanceOf[Map[String, String]].getOrElse("message", ""))
 
     val sentRegexp = "^(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}.\\d+)\\s+\\S+\\s+\\[dev\\s\\#(.+)\\]\\sSent\\s\\d+\\sbytes\\sto\\s(.+)".r
     val receivedRegexp = "^(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}.\\d+)\\s+\\S+\\s+\\[(.+)\\]\\sReceived\\s\\d+\\sbytes\\sfrom\\s(.+)".r
